@@ -14,8 +14,11 @@ When files or directories are picked, the app extension should write a extended 
   };
 ```
 
-Image resources can be retrieved by accessing the JSON file pointed to by ...
-This file will itself reference icons at different resolutions. 
+Image resources can be retrieved by accessing the JSON file pointed to by appInfoURL
+This file will itself reference icons at different resolutions and image src can be either fully qualified
+or relative to the JSON file itself.
+
+You should serve the files from secure websites to comply with App Transport Security.
 
 ```
 {"icons":
