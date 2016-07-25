@@ -7,6 +7,11 @@ The app accessing external files has no immediate way to know which app provides
 When files or directories are picked, the app extension should write a extended file attribute named x-document-source containing a binary encoded property list containing
 
 ```
+ {"name":       "Working Copy",
+  "identifier": "com.appliedphasor.working-copy",
+  "path":       "directory/filename.ext",
+  "appInfoURL": "https://raw.githubusercontent.com/palmin/x-document-source/master/appInfo.json"
+  };
 
 ```
 
