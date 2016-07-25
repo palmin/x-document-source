@@ -12,7 +12,6 @@ When files or directories are picked, the app extension should write a extended 
   "path":       "directory/filename.ext",
   "appInfoURL": "https://raw.githubusercontent.com/palmin/x-document-source/master/appInfo.json"
   };
-
 ```
 
 Image resources can be retrieved by accessing the JSON file pointed to by ...
@@ -24,7 +23,6 @@ This file will itself reference icons at different resolutions.
  {"width": 58, "height": 58, "src": "/img/icon@2x.png"},
  {"width": 87, "height": 87, "src": "/img/icon@3x.png"}
 ]}
-
 ```
 
 It is the responsibility of the app reading these images to mask the image to the superellipse shape expected for app icons. This repository contains code for this. 
