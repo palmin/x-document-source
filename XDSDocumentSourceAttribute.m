@@ -207,19 +207,25 @@ static NSString *const XDSDocumentSourceAttributeName = @"x-document-source";
     }
 }
 
-static void setNonNullAttributes(NSMutableDictionary* _Nonnull dict,
-                                 NSString* _Nonnull key, NSString* _Nullable value) {
-	if(value == nil) return;
-	dict[key] = value;
++ (instancetype)documentSourceAttributeBundleIdentifier:(NSString * _Nonnull)bundleIdentifier
+                                        applicationName:(NSString* _Nonnull)applicationName
+                                           documentPath:(NSString* _Nonnull)documentPath
+                                             appInfoURL:(NSURL* _Nonnull)appInfoURL {
+    XDSDocumentSourceAttribute* attribute = [XDSDocumentSourceAttribute new];
+    attribute.bundleIdentifier = bundleIdentifier;
+    attribute.applicationName = applicationName;
+    attribute.documentPath = documentPath;
+    attribute.appInfoURL = appInfoURL;
+    
+    return attribute;
 }
 
 -(BOOL)writeToURL:(NSURL * _Nonnull)fileURL {
-	NSMutableDictionary* plist = [NSMutableDictionary new];
-	setNonNullAttributes(plist, @"identifier", self.bundleIdentifier);
-	setNonNullAttributes(plist, @"name", self.applicationName);
-	setNonNullAttributes(plist, @"path", self.documentPath);
-	setNonNullAttributes(plist, @"appInfoURL", self.appInfoURL.absoluteString);
-		
+    NSDictionary* plist = @{@"identifier" : self.bundleIdentifier,
+                            @"appInfoURL" : self.appInfoURL.absoluteString,
+                            @"name"       : self.applicationName,
+                            @"path"       : self.documentPath};
+    
 	NSData*	data = [NSPropertyListSerialization dataWithPropertyList:plist
                                                               format:NSPropertyListBinaryFormat_v1_0
 							                                 options:0 error:NULL];

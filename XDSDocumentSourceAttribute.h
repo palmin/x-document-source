@@ -29,6 +29,12 @@ typedef NS_ENUM(NSInteger, XDSDocumentSourceAttributeIconType) {
 // an AABDocumentSourceAttribute instance on success
 + (instancetype)documentSourceAttributeWithURL:(NSURL * _Nonnull)url;
 
+// create instance for writing
++ (instancetype)documentSourceAttributeBundleIdentifier:(NSString * _Nonnull)bundleIdentifier
+                                        applicationName:(NSString* _Nonnull)applicationName
+                                           documentPath:(NSString* _Nonnull)documentPath
+                                             appInfoURL:(NSURL* _Nonnull)appInfoURL;
+
 // write x-document-source extended attribute with contents of this
 // XDSDocumentSourceAttribute returning whether this succeeded.
 -(BOOL)writeToURL:(NSURL * _Nonnull)fileURL;
