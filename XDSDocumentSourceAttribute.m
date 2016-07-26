@@ -2,8 +2,7 @@
 //  XDSDocumentSourceAttribute.m
 //  Textastic & Working Copy
 //
-//  Created by Alexander Blach & Anders Borum June & July 2016
-//
+//  Created by Alexander Blach & Anders Borum in June & July 2016
 //
 
 #import "XDSDocumentSourceAttribute.h"
@@ -19,14 +18,37 @@ static NSString *const XDSDocumentSourceAttributeName = @"x-document-source";
 
 @implementation XDSDocumentSourceAttribute
 
-+ (instancetype)documentSourceAttributeWithURL:(NSURL *)url {
-    if (![url isFileURL]) {
+- (instancetype)initWithBundleIdentifier:(NSString *)bundleIdentifier
+                         applicationName:(NSString *)applicationName
+                            documentPath:(NSString *)documentPath
+                              appInfoURL:(NSURL *)appInfoURL {
+    if (self = [super init]) {
+        self.bundleIdentifier = bundleIdentifier;
+        self.applicationName = applicationName;
+        self.documentPath = documentPath;
+        self.appInfoURL = appInfoURL;
+    }
+    return self;
+}
+
++ (instancetype)documentSourceAttributeWithBundleIdentifier:(NSString *)bundleIdentifier
+                                            applicationName:(NSString *)applicationName
+                                               documentPath:(NSString *)documentPath
+                                                 appInfoURL:(NSURL *)appInfoURL {
+    return [[self alloc] initWithBundleIdentifier:bundleIdentifier
+                                  applicationName:applicationName
+                                     documentPath:documentPath
+                                       appInfoURL:appInfoURL];
+}
+
++ (instancetype)readDocumentSourceAttributeAtURL:(NSURL *)fileURL {
+    if (![fileURL isFileURL]) {
         // we need a file path for getxattr
         return nil;
     }
 
     const char *attributeName = [XDSDocumentSourceAttributeName UTF8String];
-    const char *path = [[url path] fileSystemRepresentation];
+    const char *path = [[fileURL path] fileSystemRepresentation];
 
     // try to read the "x-document-source" extended attribute
     // get length of attribute data
@@ -41,11 +63,10 @@ static NSString *const XDSDocumentSourceAttributeName = @"x-document-source";
 
     XDSDocumentSourceAttribute *attribute = nil;
     if (size2 == size) {
-        NSDictionary *dict =
-            [NSPropertyListSerialization propertyListWithData:data
-                                                      options:NSPropertyListImmutable
-                                                       format:nil
-                                                        error:nil];
+        NSDictionary *dict = [NSPropertyListSerialization propertyListWithData:data
+                                                                       options:NSPropertyListImmutable
+                                                                        format:nil
+                                                                         error:nil];
 
         if (dict != nil && [dict isKindOfClass:[NSDictionary class]]) {
             attribute = [[XDSDocumentSourceAttribute alloc] init];
@@ -74,17 +95,20 @@ static NSString *const XDSDocumentSourceAttributeName = @"x-document-source";
     return attribute;
 }
 
+// Takes a square application icon and applies the superellipse rounded rect.
+// Also strokes the path to match the look of the icon in the document picker document provider list.
 - (UIImage *)roundedImage:(UIImage *)image withSize:(CGSize)size scale:(CGFloat)scale {
     CGFloat cornerRadius = round(0.225 * size.width);
     CGRect rect = CGRectMake(0, 0, size.width, size.height);
     UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:cornerRadius];
+
     UIImage *resultImage;
 
     UIGraphicsBeginImageContextWithOptions(size, NO, scale);
     {
         [path addClip];
         [image drawInRect:rect];
-        
+
         [[UIColor colorWithWhite:0.0f alpha:0.1f] setStroke];
         [path stroke];
         resultImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -115,14 +139,14 @@ static NSString *const XDSDocumentSourceAttributeName = @"x-document-source";
                             NSUInteger preferredWidth;
                             NSUInteger preferredHeight;
                             CGFloat scale = [UIScreen mainScreen].scale;
-                            
+
                             switch (iconType) {
-                                case AABDocumentSourceAttributeIconTypeSpotlight:
-                                default:
-                                    preferredWidth = preferredHeight = 29;
-                                    break;
+                            case XDSDocumentSourceAttributeIconTypeSpotlight:
+                            default:
+                                preferredWidth = preferredHeight = 29;
+                                break;
                             }
-                            
+
                             BOOL foundExactMatch = NO;
                             NSString *foundSrc = nil;
                             NSInteger foundHeight = NSIntegerMax;
@@ -145,8 +169,8 @@ static NSString *const XDSDocumentSourceAttributeName = @"x-document-source";
                                             foundWidth = w;
                                             foundHeight = h;
                                             break;
-                                        } else if (w > preferredWidth * scale && h > preferredHeight * scale && w < foundWidth
-                                            && h < foundWidth) {
+                                        } else if (w > preferredWidth * scale && h > preferredHeight * scale
+                                            && w < foundWidth && h < foundWidth) {
                                             // found an icon that is larger than our preferred size but smaller than
                                             // our previously found icon
                                             foundSrc = src;
@@ -161,26 +185,26 @@ static NSString *const XDSDocumentSourceAttributeName = @"x-document-source";
                                 if (imageURL) {
                                     // load icon
                                     NSURLSessionDataTask *imageTask = [[NSURLSession sharedSession]
-                                                                       dataTaskWithURL:imageURL
-                                                                       completionHandler:^(NSData *_Nullable data,
-                                                                                           NSURLResponse *_Nullable response, NSError *_Nullable error) {
-                                                                           if (error || [data length] == 0) {
-                                                                               completionHandler(nil, error);
-                                                                           } else {
-                                                                               UIImage *image = [UIImage imageWithData:data];
-                                                                               if (!image) {
-                                                                                   // could not load image
-                                                                                   completionHandler(nil, nil);
-                                                                               } else {
-                                                                                   image = [self
-                                                                                            roundedImage:image
-                                                                                            withSize:CGSizeMake(preferredWidth, preferredHeight)
-                                                                                            scale:scale];
-                                                                                   // finally we have our image!
-                                                                                   completionHandler(image, nil);
-                                                                               }
-                                                                           }
-                                                                       }];
+                                          dataTaskWithURL:imageURL
+                                        completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+                                            NSError *_Nullable error) {
+                                            if (error || [data length] == 0) {
+                                                completionHandler(nil, error);
+                                            } else {
+                                                UIImage *image = [UIImage imageWithData:data];
+                                                if (!image) {
+                                                    // could not load image
+                                                    completionHandler(nil, nil);
+                                                } else {
+                                                    image =
+                                                        [self roundedImage:image
+                                                                  withSize:CGSizeMake(preferredWidth, preferredHeight)
+                                                                     scale:scale];
+                                                    // finally we have our image!
+                                                    completionHandler(image, nil);
+                                                }
+                                            }
+                                        }];
                                     [imageTask resume];
                                 } else {
                                     // could not parse relative url string
@@ -207,32 +231,26 @@ static NSString *const XDSDocumentSourceAttributeName = @"x-document-source";
     }
 }
 
-+ (instancetype)documentSourceAttributeBundleIdentifier:(NSString * _Nonnull)bundleIdentifier
-                                        applicationName:(NSString* _Nonnull)applicationName
-                                           documentPath:(NSString* _Nonnull)documentPath
-                                             appInfoURL:(NSURL* _Nonnull)appInfoURL {
-    XDSDocumentSourceAttribute* attribute = [XDSDocumentSourceAttribute new];
-    attribute.bundleIdentifier = bundleIdentifier;
-    attribute.applicationName = applicationName;
-    attribute.documentPath = documentPath;
-    attribute.appInfoURL = appInfoURL;
-    
-    return attribute;
-}
+- (BOOL)writeToURL:(NSURL *)fileURL {
+    if (![fileURL isFileURL]) {
+        // we need a file path for setxattr
+        return NO;
+    }
 
--(BOOL)writeToURL:(NSURL * _Nonnull)fileURL {
-    NSDictionary* plist = @{@"identifier" : self.bundleIdentifier,
-                            @"appInfoURL" : self.appInfoURL.absoluteString,
-                            @"name"       : self.applicationName,
-                            @"path"       : self.documentPath};
-    
-	NSData*	data = [NSPropertyListSerialization dataWithPropertyList:plist
+    NSDictionary *plist = @{
+        @"identifier": self.bundleIdentifier,
+        @"name": self.applicationName,
+        @"path": self.documentPath,
+        @"appInfoURL": self.appInfoURL.absoluteString
+    };
+
+    NSData *data = [NSPropertyListSerialization dataWithPropertyList:plist
                                                               format:NSPropertyListBinaryFormat_v1_0
-							                                 options:0 error:NULL];
-	
-	const char* filePath = [fileURL.path fileSystemRepresentation];
-    return setxattr(filePath, XDSDocumentSourceAttributeName.UTF8String,
-                    data.bytes, data.length, 0,0) == 0;
+                                                             options:0
+                                                               error:NULL];
+
+    const char *filePath = [fileURL.path fileSystemRepresentation];
+    return setxattr(filePath, XDSDocumentSourceAttributeName.UTF8String, data.bytes, data.length, 0, 0) == 0;
 }
 
 @end
