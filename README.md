@@ -52,3 +52,22 @@ It is the responsibility of the app reading these images to mask the image to th
 So far, x-document-source has been implemented by [Working Copy](https://workingcopyapp.com) and [Textastic](https://www.textasticapp.com) v6.2 (currently in beta). 
 
 If you have an app that is either a document provider or uses the iOS document picker: please have a look at the `XDSDocumentSourceAttribute` class in this repository and add it to your app!
+
+A document provider might write this extended attribute as part of `dismissGrantingAccessToURL` in `UIDocumentPickerExtensionViewController`:
+```objc
+- (void)dismissGrantingAccessToURL:(NSURL *)url {
+    // determine documentPath relative to rootStorageURL
+    NSString* rootPath = self.documentStorageURL.path;
+    NSRange range = [url.path rangeOfString: rootPath.lastPathComponent];
+    NSString* documentPath = [url.path substringFromIndex:range.location + range.length];
+
+    NSURL* appInfoURL = [NSURL URLWithString:@"https://workingcopyapp.com/appInfo.json"];
+    XDSDocumentSourceAttribute* attribute = [XDSDocumentSourceAttribute documentSourceAttributeWithBundleIdentifier:@"com.appliedphasor.working-copy"
+                                                                                                    applicationName:@"Working Copy"
+                                                                                                       documentPath:documentPath
+                                                                                                         appInfoURL:appInfoURL];
+    [attribute writeToURL:url];
+
+    [super dismissGrantingAccessToURL:url];
+}
+```
