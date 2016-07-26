@@ -61,9 +61,10 @@ A document provider might write this extended attribute as part of `dismissGrant
     NSRange range = [url.path rangeOfString: rootPath.lastPathComponent];
     NSString* documentPath = [url.path substringFromIndex:range.location + range.length];
 
+    NSString* appId = @"com.appliedphasor.working-copy";
     NSURL* appInfoURL = [NSURL URLWithString:@"https://workingcopyapp.com/appInfo.json"];
     XDSDocumentSourceAttribute* attribute;
-    attribute = [XDSDocumentSourceAttribute documentSourceAttributeWithBundleIdentifier:@"com.appliedphasor.working-copy"
+    attribute = [XDSDocumentSourceAttribute documentSourceAttributeWithBundleIdentifier:appId
                                                                         applicationName:@"Working Copy"
                                                                            documentPath:documentPath
                                                                              appInfoURL:appInfoURL];
