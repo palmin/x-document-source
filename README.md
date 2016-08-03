@@ -49,7 +49,7 @@ It is the responsibility of the app reading these images to mask the image to th
 
 ## Adoption
 
-So far, x-document-source has been implemented by [Working Copy](https://workingcopyapp.com) and [Textastic](https://www.textasticapp.com) v6.2 (currently in beta). 
+So far, x-document-source has been implemented by [Working Copy](https://workingcopyapp.com) and [Textastic](https://www.textasticapp.com) v6.2. 
 
 If you have an app that is either a document provider or uses the iOS document picker: please have a look at the `XDSDocumentSourceAttribute` class in this repository and add it to your app!
 
