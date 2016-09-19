@@ -45,7 +45,7 @@ You should serve the files from **a secure website** (https) to comply with App 
 ]}
 ```
 
-It is the responsibility of the app reading these images to mask the image to the superellipse shape expected for app icons. This repository contains code for this. 
+It is the responsibility of the app reading these images to mask the image to the rounded rectangle expected for app icons. This repository contains code for this. 
 
 ## Adoption
 
